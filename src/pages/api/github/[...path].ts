@@ -1,20 +1,27 @@
 import type { APIRoute } from 'astro';
 
 export const ALL: APIRoute = async ({ params, request }) => {
-    const path = params.path;
+    const { path } = params;
+
+    if (!path) {
+        return new Response(JSON.stringify({ message: 'Missing path' }), {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+
     const url = new URL(request.url);
     const searchParams = url.searchParams.toString();
-
     const githubUrl = `https://api.github.com/${path}${searchParams ? '?' + searchParams : ''}`;
 
     const headers = new Headers();
     headers.set('Accept', 'application/vnd.github.v3+json');
     headers.set('User-Agent', 'Github-Analytics-Generator');
 
-    // Use GITHUB_TOKEN if available in environment variables
-    const token = import.meta.env.GITHUB_TOKEN || process.env.GITHUB_TOKEN;
+    // Use import.meta.env for tokens in Astro
+    const token = import.meta.env.GITHUB_TOKEN;
     if (token) {
-        headers.set('Authorization', `token ${token}`);
+        headers.set('Authorization', `Bearer ${token}`);
     }
 
     try {
@@ -23,25 +30,33 @@ export const ALL: APIRoute = async ({ params, request }) => {
             headers: headers,
         });
 
-        const data = await response.json();
+        const contentType = response.headers.get('content-type');
+        let body;
 
-        return new Response(JSON.stringify(data), {
+        if (contentType && contentType.includes('application/json')) {
+            body = JSON.stringify(await response.json());
+        } else {
+            body = await response.text();
+        }
+
+        return new Response(body, {
             status: response.status,
             headers: {
-                'Content-Type': 'application/json',
-                // Forward pagination and rate limit headers if present
+                'Content-Type': contentType || 'application/json',
                 'X-RateLimit-Limit': response.headers.get('X-RateLimit-Limit') || '',
                 'X-RateLimit-Remaining': response.headers.get('X-RateLimit-Remaining') || '',
                 'X-RateLimit-Reset': response.headers.get('X-RateLimit-Reset') || '',
                 'Link': response.headers.get('Link') || '',
             }
         });
-    } catch (error) {
-        return new Response(JSON.stringify({ message: 'Internal Server Error' }), {
+    } catch (error: any) {
+        console.error('Proxy error:', error);
+        return new Response(JSON.stringify({
+            message: 'Internal Server Error',
+            error: error?.message || 'Unknown error'
+        }), {
             status: 500,
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            headers: { 'Content-Type': 'application/json' }
         });
     }
 };

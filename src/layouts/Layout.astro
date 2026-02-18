@@ -456,24 +456,24 @@ const {
     <body class="dot-grid min-h-screen relative">
         <div class="mesh-bg"></div>
         <div class="full-bg-animation">
-  <Antigravity
-    count={300}
-    client:load
-    magnetRadius={6}
-    ringRadius={12}
-    waveSpeed={0.1}
-    waveAmplitude={1}
-    particleSize={1.5}
-    lerpSpeed={0.05}
-    color="#2cfc03"
-    autoAnimate
-    particleVariance={1}
-    rotationSpeed={0.7}
-    depthFactor={1}
-    pulseSpeed={3}
-    particleShape="capsule"
-    fieldStrength={10}
-/>
+            <Antigravity
+                client:only="react"
+                count={300}
+                magnetRadius={6}
+                ringRadius={12}
+                waveSpeed={0.1}
+                waveAmplitude={1}
+                particleSize={1.5}
+                lerpSpeed={0.05}
+                color="#2cfc03"
+                autoAnimate
+                particleVariance={1}
+                rotationSpeed={0.7}
+                depthFactor={1}
+                pulseSpeed={3}
+                particleShape="capsule"
+                fieldStrength={10}
+            />
         </div>
         <slot />
     </body>

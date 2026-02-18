@@ -1,13 +1,136 @@
-import { e as createAstro, f as createComponent, r as renderTemplate, k as renderSlot, l as renderHead, n as renderScript, u as unescapeHTML, h as addAttribute, o as renderComponent } from '../chunks/astro/server_DPzZryqj.mjs';
+import { e as createAstro, f as createComponent, r as renderTemplate, k as renderSlot, l as renderComponent, n as renderHead, o as renderScript, u as unescapeHTML, h as addAttribute } from '../chunks/astro/server_0A_MiSMj.mjs';
 import 'piccolore';
-import 'clsx';
-/* empty css                                 */
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { Canvas, useThree, useFrame } from '@react-three/fiber';
+import { useRef, useMemo, useState, useEffect, useCallback } from 'react';
+import * as THREE from 'three';
+/* empty css                                 */
 import { motion, AnimatePresence } from 'framer-motion';
 import { Moon, Sun, Github, X, Loader2, Search, Clock, ExternalLink, Building2, MapPin, Link, Calendar, Users, BookOpen, Star, GitFork, Eye, FileCode, Info, ArrowLeftRight, ArrowRight, CheckCircle, Download, RefreshCw, AlertCircle, WifiOff, UserX, LayoutDashboard, GitCompareArrows } from 'lucide-react';
+import 'clsx';
 import { ResponsiveContainer, PieChart, Pie, Cell, Sector, BarChart, XAxis, YAxis, Tooltip, Bar, Legend } from 'recharts';
 export { renderers } from '../renderers.mjs';
+
+const AntigravityInner = ({
+  count = 300,
+  magnetRadius = 6,
+  ringRadius = 12,
+  waveSpeed = 0.1,
+  waveAmplitude = 1,
+  particleSize = 1.5,
+  lerpSpeed = 0.05,
+  color = "#2cfc03",
+  autoAnimate = true,
+  particleVariance = 1,
+  rotationSpeed = 0.7,
+  depthFactor = 1,
+  pulseSpeed = 3,
+  particleShape = "capsule",
+  fieldStrength = 10
+}) => {
+  const meshRef = useRef(null);
+  const { viewport } = useThree();
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+  const lastMousePos = useRef({ x: 0, y: 0 });
+  const lastMouseMoveTime = useRef(0);
+  const virtualMouse = useRef({ x: 0, y: 0 });
+  const particles = useMemo(() => {
+    const temp = [];
+    const width = viewport.width || 100;
+    const height = viewport.height || 100;
+    for (let i = 0; i < count; i++) {
+      const t = Math.random() * 100;
+      const x = (Math.random() - 0.5) * width;
+      const y = (Math.random() - 0.5) * height;
+      const z = (Math.random() - 0.5) * 20;
+      const speed = 0.01 + Math.random() / 200;
+      const randomRadiusOffset = (Math.random() - 0.5) * 2;
+      temp.push({
+        t,
+        speed,
+        mx: x,
+        my: y,
+        mz: z,
+        cx: x,
+        cy: y,
+        cz: z,
+        randomRadiusOffset
+      });
+    }
+    return temp;
+  }, [count, viewport.width, viewport.height]);
+  useFrame((state, delta) => {
+    const mesh = meshRef.current;
+    if (!mesh) return;
+    const { viewport: v, pointer: m } = state;
+    const mouseDist = Math.sqrt(Math.pow(m.x - lastMousePos.current.x, 2) + Math.pow(m.y - lastMousePos.current.y, 2));
+    if (mouseDist > 1e-3) {
+      lastMouseMoveTime.current = Date.now();
+      lastMousePos.current = { x: m.x, y: m.y };
+    }
+    let destX = m.x * v.width / 2;
+    let destY = m.y * v.height / 2;
+    if (autoAnimate && Date.now() - lastMouseMoveTime.current > 2e3) {
+      const time = state.clock.getElapsedTime();
+      destX = Math.sin(time * 0.5) * (v.width / 4);
+      destY = Math.cos(time * 0.5 * 2) * (v.height / 4);
+    }
+    const mouseSmoothFactor = 1 - Math.pow(1e-3, delta);
+    virtualMouse.current.x += (destX - virtualMouse.current.x) * mouseSmoothFactor;
+    virtualMouse.current.y += (destY - virtualMouse.current.y) * mouseSmoothFactor;
+    const targetX = virtualMouse.current.x;
+    const targetY = virtualMouse.current.y;
+    const globalRotation = state.clock.getElapsedTime() * rotationSpeed;
+    const actualLerp = 1 - Math.pow(1 - lerpSpeed, delta * 60);
+    particles.forEach((particle, i) => {
+      let { t, speed, mx, my, mz, cz, randomRadiusOffset } = particle;
+      t = particle.t += speed / 2 * (delta * 60);
+      const projectionFactor = 1 - cz / 50;
+      const projectedTargetX = targetX * projectionFactor;
+      const projectedTargetY = targetY * projectionFactor;
+      const dx = mx - projectedTargetX;
+      const dy = my - projectedTargetY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      let targetPos = { x: mx, y: my, z: mz * depthFactor };
+      if (dist < magnetRadius) {
+        const angle = Math.atan2(dy, dx) + globalRotation;
+        const wave = Math.sin(t * waveSpeed + angle) * (0.5 * waveAmplitude);
+        const deviation = randomRadiusOffset * (5 / (fieldStrength + 0.1));
+        const currentRingRadius = ringRadius + wave + deviation;
+        targetPos.x = projectedTargetX + currentRingRadius * Math.cos(angle);
+        targetPos.y = projectedTargetY + currentRingRadius * Math.sin(angle);
+        targetPos.z = mz * depthFactor + Math.sin(t) * (1 * waveAmplitude * depthFactor);
+      }
+      particle.cx += (targetPos.x - particle.cx) * actualLerp;
+      particle.cy += (targetPos.y - particle.cy) * actualLerp;
+      particle.cz += (targetPos.z - particle.cz) * actualLerp;
+      dummy.position.set(particle.cx, particle.cy, particle.cz);
+      dummy.lookAt(projectedTargetX, projectedTargetY, particle.cz);
+      dummy.rotateX(Math.PI / 2);
+      const currentDistToMouse = Math.sqrt(
+        Math.pow(particle.cx - projectedTargetX, 2) + Math.pow(particle.cy - projectedTargetY, 2)
+      );
+      const distFromRing = Math.abs(currentDistToMouse - ringRadius);
+      let scaleFactor = 1 - distFromRing / 10;
+      scaleFactor = Math.max(0, Math.min(1, scaleFactor));
+      const finalScale = scaleFactor * (0.8 + Math.sin(t * pulseSpeed) * 0.2 * particleVariance) * particleSize;
+      dummy.scale.set(finalScale, finalScale, finalScale);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(i, dummy.matrix);
+    });
+    mesh.instanceMatrix.needsUpdate = true;
+  });
+  return /* @__PURE__ */ jsxs("instancedMesh", { ref: meshRef, args: [void 0, void 0, count], children: [
+    particleShape === "capsule" && /* @__PURE__ */ jsx("capsuleGeometry", { args: [0.1, 0.4, 4, 8] }),
+    particleShape === "sphere" && /* @__PURE__ */ jsx("sphereGeometry", { args: [0.2, 16, 16] }),
+    particleShape === "box" && /* @__PURE__ */ jsx("boxGeometry", { args: [0.3, 0.3, 0.3] }),
+    particleShape === "tetrahedron" && /* @__PURE__ */ jsx("tetrahedronGeometry", { args: [0.3] }),
+    /* @__PURE__ */ jsx("meshBasicMaterial", { color })
+  ] });
+};
+const Antigravity = (props) => {
+  return /* @__PURE__ */ jsx(Canvas, { camera: { position: [0, 0, 50], fov: 35 }, children: /* @__PURE__ */ jsx(AntigravityInner, { ...props }) });
+};
 
 var __freeze = Object.freeze;
 var __defProp = Object.defineProperty;
@@ -21,7 +144,7 @@ const $$Layout = createComponent(($$result, $$props, $$slots) => {
     title = "GitHub Analytics Dashboard \u2014 Visualize Your GitHub Profile",
     description = "Analyze any GitHub profile with beautiful visualizations. View stats, language distribution, top repositories, contribution heatmap, and compare users side-by-side."
   } = Astro2.props;
-  return renderTemplate(_a || (_a = __template(['<html lang="en" data-astro-cid-sckkx6r4> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description"', '><meta name="keywords" content="github stats, github analytics, visualization, developer tools, github profile profile, github comparison"><link rel="canonical"', '><meta name="generator"', '><!-- Open Graph --><meta property="og:title"', '><meta property="og:description"', '><meta property="og:type" content="website"><meta property="og:url"', '><meta property="og:image" content="/og-image.png"><meta property="og:site_name" content="GitHub Analytics Dashboard"><!-- Twitter Card --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title"', '><meta name="twitter:description"', '><meta name="twitter:image" content="/og-image.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><title>', '</title><!-- JSON-LD for rich results --><script type="application/ld+json">', "<\/script>", "", '<script>\n            // Theme initialization (prevent flash)\n            const savedTheme = localStorage.getItem("theme") || "dark";\n            document.documentElement.setAttribute("data-theme", savedTheme);\n        <\/script>', '</head> <body class="dot-grid min-h-screen relative" data-astro-cid-sckkx6r4> <div class="mesh-bg" data-astro-cid-sckkx6r4></div> ', " </body></html>"])), addAttribute(description, "content"), addAttribute(Astro2.url.href, "href"), addAttribute(Astro2.generator, "content"), addAttribute(title, "content"), addAttribute(description, "content"), addAttribute(Astro2.url.href, "content"), addAttribute(title, "content"), addAttribute(description, "content"), title, unescapeHTML(JSON.stringify({
+  return renderTemplate(_a || (_a = __template(['<html lang="en" data-astro-cid-sckkx6r4> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description"', '><meta name="keywords" content="github stats, github analytics, visualization, developer tools, github profile profile, github comparison"><link rel="canonical"', '><meta name="generator"', '><!-- Open Graph --><meta property="og:title"', '><meta property="og:description"', '><meta property="og:type" content="website"><meta property="og:url"', '><meta property="og:image" content="/logo/GitHub.png"><meta property="og:site_name" content="GitHub Analytics Dashboard"><!-- Twitter Card --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title"', '><meta name="twitter:description"', '><meta name="twitter:image" content="/logo/GitHub.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="icon" type="image/png" href="/logo/GitHub.png"><title>', '</title><!-- JSON-LD for rich results --><script type="application/ld+json">', "<\/script>", "", '<script>\n            // Theme initialization (prevent flash)\n            const savedTheme = localStorage.getItem("theme") || "dark";\n            document.documentElement.setAttribute("data-theme", savedTheme);\n        <\/script>', '</head> <body class="dot-grid min-h-screen relative" data-astro-cid-sckkx6r4> <div class="mesh-bg" data-astro-cid-sckkx6r4></div> <div class="full-bg-animation" data-astro-cid-sckkx6r4> ', " </div> ", " </body></html>"])), addAttribute(description, "content"), addAttribute(Astro2.url.href, "href"), addAttribute(Astro2.generator, "content"), addAttribute(title, "content"), addAttribute(description, "content"), addAttribute(Astro2.url.href, "content"), addAttribute(title, "content"), addAttribute(description, "content"), title, unescapeHTML(JSON.stringify({
     "@context": "https://schema.org",
     "@type": "WebApplication",
     name: "GitHub Analytics Dashboard",
@@ -33,7 +156,7 @@ const $$Layout = createComponent(($$result, $$props, $$slots) => {
       "@type": "Organization",
       name: "GitHub Analytics"
     }
-  })), renderScript($$result, "/home/boba/Projects/Github Analytics Generator/src/layouts/Layout.astro?astro&type=script&index=0&lang.ts"), renderScript($$result, "/home/boba/Projects/Github Analytics Generator/src/layouts/Layout.astro?astro&type=script&index=1&lang.ts"), renderHead(), renderSlot($$result, $$slots["default"]));
+  })), renderScript($$result, "/home/boba/Projects/Github Analytics Generator/src/layouts/Layout.astro?astro&type=script&index=0&lang.ts"), renderScript($$result, "/home/boba/Projects/Github Analytics Generator/src/layouts/Layout.astro?astro&type=script&index=1&lang.ts"), renderHead(), renderComponent($$result, "Antigravity", Antigravity, { "count": 300, "client:load": true, "magnetRadius": 6, "ringRadius": 12, "waveSpeed": 0.1, "waveAmplitude": 1, "particleSize": 1.5, "lerpSpeed": 0.05, "color": "#2cfc03", "autoAnimate": true, "particleVariance": 1, "rotationSpeed": 0.7, "depthFactor": 1, "pulseSpeed": 3, "particleShape": "capsule", "fieldStrength": 10, "client:component-hydration": "load", "client:component-path": "/home/boba/Projects/Github Analytics Generator/src/components/Antigravity", "client:component-export": "default", "data-astro-cid-sckkx6r4": true }), renderSlot($$result, $$slots["default"]));
 }, "/home/boba/Projects/Github Analytics Generator/src/layouts/Layout.astro", void 0);
 
 const ThemeToggle = () => {
@@ -121,16 +244,18 @@ const Header = () => {
             {
               whileHover: { scale: 1.05 },
               whileTap: { scale: 0.95 },
-              href: "https://github.com",
+              href: "https://github.com/bondanbanuaji/Github-Analytics-Generator",
               target: "_blank",
               rel: "noopener noreferrer",
               className: "w-10 h-10 rounded-xl flex items-center justify-center",
               style: {
                 background: "var(--bg-card)",
-                border: "1px solid var(--border-primary)"
+                border: "1px solid var(--border-primary)",
+                transform: "scale(1.05)"
               },
               title: "GitHub",
-              children: /* @__PURE__ */ jsx(Github, { className: "w-4.5 h-4.5", style: { color: "var(--text-secondary)" } })
+              tabIndex: 0,
+              children: /* @__PURE__ */ jsx(Github, { className: "w-4.5 h-4.5", style: { color: "var(--text-secondary)" }, "aria-hidden": "true" })
             }
           ),
           /* @__PURE__ */ jsx(ThemeToggle, {})
@@ -1047,7 +1172,7 @@ const ActivityHeatmap = ({ data }) => {
   ] });
 };
 
-const API_BASE = "https://api.github.com";
+const API_BASE = "/api/github";
 async function fetchJSON(url) {
   const response = await fetch(url, {
     headers: {
@@ -1727,6 +1852,19 @@ function useGitHubData() {
   const [error, setError] = useState(null);
   const fetchData = useCallback(async (username) => {
     if (!username.trim()) return;
+    const cacheKey = `github_data_${username.toLowerCase()}`;
+    const cachedData = sessionStorage.getItem(cacheKey);
+    if (cachedData) {
+      try {
+        const parsed = JSON.parse(cachedData);
+        setData(parsed);
+        setError(null);
+        return;
+      } catch (e) {
+        console.error("Failed to parse cached data", e);
+        sessionStorage.removeItem(cacheKey);
+      }
+    }
     setLoading(true);
     setError(null);
     setData(null);
@@ -1740,14 +1878,16 @@ function useGitHubData() {
       const languageStats = processLanguageStats(repos);
       const stats = calculateTotalStats(repos);
       const contributionData = processContributionData(events);
-      setData({
+      const result = {
         user,
         repos,
         topRepos,
         languageStats,
         ...stats,
         contributionData
-      });
+      };
+      setData(result);
+      sessionStorage.setItem(cacheKey, JSON.stringify(result));
     } catch (err) {
       if (err.type) {
         setError(err);
