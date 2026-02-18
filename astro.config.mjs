@@ -1,13 +1,13 @@
-// @ts-check
 import { defineConfig } from "astro/config";
 import react from "@astrojs/react";
-import vercel from "@astrojs/vercel";
+import vercel from "@astrojs/vercel/serverless";
 import sitemap from "@astrojs/sitemap";
 
-// https://astro.build/config
 export default defineConfig({
-  site: "https://github-analytics-one.vercel.app", // User to update if needed
+  site: "https://github-analytics-one.vercel.app",
   output: "server",
-  adapter: vercel(),
+  adapter: vercel({
+    webAnalytics: { enabled: true },
+  }),
   integrations: [react(), sitemap()],
 });
