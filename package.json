@@ -2,7 +2,7 @@
   "name": "github-analytics-generator",
   "type": "module",
   "engines": {
-    "node": ">=22.0.0"
+    "node": "24.x"
   },
   "version": "0.0.1",
   "scripts": {
