@@ -67,7 +67,7 @@ export interface GitHubError {
     resetTime?: number;
 }
 
-const API_BASE = "https://api.github.com";
+const API_BASE = "/api/github";
 
 async function fetchJSON<T>(url: string): Promise<T> {
     const response = await fetch(url, {

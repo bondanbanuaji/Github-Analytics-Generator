@@ -1,43 +1,51 @@
-# Astro Starter Kit: Minimal
+# 🚀 GitHub Analytics Generator
 
-```sh
-npm create astro@latest -- --template minimal
-```
+> **A powerful GitHub Analytics Generator that transforms raw data into stunning visual insights in seconds.**
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+[![Vercel Deploy](https://img.shields.io/badge/Deploy-Vercel-black?style=for-the-badge&logo=vercel)](https://github-analytics-one.vercel.app)
+[![Astro](https://img.shields.io/badge/Built%20with-Astro-ff5d01?style=for-the-badge&logo=astro)](https://astro.build)
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg?style=for-the-badge)](https://opensource.org/licenses/GPL-3.0)
 
-## 🚀 Project Structure
+---
 
-Inside of your Astro project, you'll see the following folders and files:
+## ✨ Key Features
+- **📊 Real-time Analytics:** Fetch profile data, repositories, and contributions directly from the GitHub API.
+- **🌌 120fps Antigravity Background:** Interactive 3D particle animation optimized for high performance on high refresh rate displays.
+- **⚡ SSR Powered:** Lightning-fast speed with Astro SSR and Vercel Serverless Functions.
+- **🎨 Glassmorphism Design:** Modern premium interface with elegant transparency and blur effects.
+- **🛡️ Rate Limit Mitigation:** Equipped with an API Proxy and caching layer to bypass GitHub's standard rate limits.
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+## 🛠️ Tech Stack
+- **Framework:** [Astro.js](https://astro.build/)
+- **Frontend:** [React](https://reactjs.org/) & [Lucide React](https://lucide.dev/)
+- **Animation:** [Three.js](https://threejs.org/) & [React Three Fiber](https://docs.pmnd.rs/react-three-fiber)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+- **Deployment:** [Vercel](https://vercel.com/)
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## 🚀 Quick Start
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/bondanbanuaji/Github-Analytics-Generator.git
+   cd Github-Analytics-Generator
+   ```
 
-Any static assets, like images, can be placed in the `public/` directory.
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-## 🧞 Commands
+3. **Set Environment Variables (.env)**
+   Create a `.env` file in the root directory:
+   ```env
+   GITHUB_TOKEN=your_github_personal_access_token
+   ```
 
-All commands are run from the root of the project, from a terminal:
+4. **Run development mode**
+   ```bash
+   npm run dev
+   ```
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+---
 
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+Created by [bondanbanuaji](https://github.com/bondanbanuaji)

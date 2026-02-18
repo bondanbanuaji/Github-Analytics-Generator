@@ -37,17 +37,19 @@ export const Header: React.FC = () => {
                 <motion.a
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    href="https://github.com"
+                    href="https://github.com/bondanbanuaji/Github-Analytics-Generator"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-10 h-10 rounded-xl flex items-center justify-center"
                     style={{
                         background: "var(--bg-card)",
                         border: "1px solid var(--border-primary)",
+                        transform: "scale(1.05)",
                     }}
                     title="GitHub"
+                    tabIndex={0}
                 >
-                    <Github className="w-4.5 h-4.5" style={{ color: "var(--text-secondary)" }} />
+                    <Github className="w-4.5 h-4.5" style={{ color: "var(--text-secondary)" }} aria-hidden="true" />
                 </motion.a>
                 <ThemeToggle />
             </div>

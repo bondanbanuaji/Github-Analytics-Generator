@@ -40,6 +40,22 @@ export function useGitHubData(): UseGitHubDataReturn {
     const fetchData = useCallback(async (username: string) => {
         if (!username.trim()) return;
 
+        // Check cache first
+        const cacheKey = `github_data_${username.toLowerCase()}`;
+        const cachedData = sessionStorage.getItem(cacheKey);
+
+        if (cachedData) {
+            try {
+                const parsed = JSON.parse(cachedData);
+                setData(parsed);
+                setError(null);
+                return;
+            } catch (e) {
+                console.error("Failed to parse cached data", e);
+                sessionStorage.removeItem(cacheKey);
+            }
+        }
+
         setLoading(true);
         setError(null);
         setData(null);
@@ -57,14 +73,18 @@ export function useGitHubData(): UseGitHubDataReturn {
             const stats = calculateTotalStats(repos);
             const contributionData = processContributionData(events);
 
-            setData({
+            const result: GitHubData = {
                 user,
                 repos,
                 topRepos,
                 languageStats,
                 ...stats,
                 contributionData,
-            });
+            };
+
+            setData(result);
+            // Save to cache
+            sessionStorage.setItem(cacheKey, JSON.stringify(result));
         } catch (err: any) {
             if (err.type) {
                 setError(err as GitHubError);
