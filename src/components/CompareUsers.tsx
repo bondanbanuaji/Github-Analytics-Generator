@@ -89,6 +89,13 @@ export const CompareUsers: React.FC = () => {
         ]
         : [];
 
+    const handleSwap = () => {
+        setUsername1(username2);
+        setUsername2(username1);
+        setUser1Data(user2Data);
+        setUser2Data(user1Data);
+    };
+
     return (
         <motion.div
             initial={{ opacity: 0 }}
@@ -137,9 +144,13 @@ export const CompareUsers: React.FC = () => {
                         />
                     </div>
 
-                    <div className="rounded-full p-2 bg-[var(--bg-secondary)] border border-[var(--border-primary)]">
-                        <ArrowLeftRight className="w-4 h-4" style={{ color: "var(--text-muted)" }} />
-                    </div>
+                    <button
+                        onClick={handleSwap}
+                        className="rounded-full p-2.5 bg-[var(--bg-secondary)] border border-[var(--border-primary)] transition-all hover:bg-[var(--bg-card-hover)] hover:border-[var(--accent)] group"
+                        title="Swap usernames"
+                    >
+                        <ArrowLeftRight className="w-4 h-4 transition-transform group-hover:rotate-180" style={{ color: "var(--text-muted)" }} />
+                    </button>
 
                     <div className="relative flex-1 w-full group">
                         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors"
@@ -157,8 +168,8 @@ export const CompareUsers: React.FC = () => {
                                 color: "var(--text-primary)",
                             }}
                             onFocus={(e) => {
-                                e.currentTarget.style.borderColor = "var(--purple)";
-                                e.currentTarget.style.boxShadow = "0 0 0 3px rgba(168, 85, 247, 0.12)";
+                                e.currentTarget.style.borderColor = "var(--pink)";
+                                e.currentTarget.style.boxShadow = "0 0 0 3px rgba(236, 72, 153, 0.12)";
                             }}
                             onBlur={(e) => {
                                 e.currentTarget.style.borderColor = "var(--border-primary)";
@@ -173,8 +184,8 @@ export const CompareUsers: React.FC = () => {
                     disabled={loading || !username1.trim() || !username2.trim()}
                     className="w-full md:w-auto px-8 py-3 rounded-xl text-white font-semibold text-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mx-auto"
                     style={{
-                        background: "linear-gradient(135deg, var(--accent), var(--purple))",
-                        boxShadow: "0 4px 16px var(--accent-glow)",
+                        background: "linear-gradient(135deg, var(--purple), #7c3aed)",
+                        boxShadow: "0 4px 16px rgba(168, 85, 247, 0.25)",
                     }}
                 >
                     {loading ? (
@@ -214,19 +225,19 @@ export const CompareUsers: React.FC = () => {
                             <div className="rounded-2xl p-6 text-center transition-all hover:-translate-y-1"
                                 style={{
                                     background: "var(--bg-card)",
-                                    border: "1px solid var(--accent)",
-                                    boxShadow: "0 8px 32px var(--accent-glow)",
+                                    border: "1px solid var(--text-primary)",
+                                    boxShadow: "0 8px 32px var(--shadow-color)",
                                 }}>
                                 <img
                                     src={user1Data.user.avatar_url}
                                     alt={user1Data.user.login}
                                     className="w-24 h-24 rounded-2xl mx-auto mb-4 object-cover"
-                                    style={{ border: "4px solid var(--accent-soft)" }}
+                                    style={{ border: "4px solid var(--border-primary)" }}
                                 />
                                 <h4 className="font-bold text-lg mb-1" style={{ color: "var(--text-primary)" }}>
                                     {user1Data.user.name || user1Data.user.login}
                                 </h4>
-                                <p className="text-sm mb-4 font-medium" style={{ color: "var(--accent)" }}>
+                                <p className="text-sm mb-4 font-medium" style={{ color: "var(--text-primary)" }}>
                                     @{user1Data.user.login}
                                 </p>
                                 <div className="grid grid-cols-3 gap-2 text-center text-xs">
@@ -248,19 +259,19 @@ export const CompareUsers: React.FC = () => {
                             <div className="rounded-2xl p-6 text-center transition-all hover:-translate-y-1"
                                 style={{
                                     background: "var(--bg-card)",
-                                    border: "1px solid var(--purple)",
-                                    boxShadow: "0 8px 32px rgba(168, 85, 247, 0.25)",
+                                    border: "1px solid var(--pink)",
+                                    boxShadow: "0 8px 32px rgba(236, 72, 153, 0.25)",
                                 }}>
                                 <img
                                     src={user2Data.user.avatar_url}
                                     alt={user2Data.user.login}
                                     className="w-24 h-24 rounded-2xl mx-auto mb-4 object-cover"
-                                    style={{ border: "4px solid rgba(168, 85, 247, 0.12)" }}
+                                    style={{ border: "4px solid rgba(236, 72, 153, 0.12)" }}
                                 />
                                 <h4 className="font-bold text-lg mb-1" style={{ color: "var(--text-primary)" }}>
                                     {user2Data.user.name || user2Data.user.login}
                                 </h4>
-                                <p className="text-sm mb-4 font-medium" style={{ color: "var(--purple)" }}>
+                                <p className="text-sm mb-4 font-medium" style={{ color: "var(--pink)" }}>
                                     @{user2Data.user.login}
                                 </p>
                                 <div className="grid grid-cols-3 gap-2 text-center text-xs">
@@ -305,8 +316,8 @@ export const CompareUsers: React.FC = () => {
                                                 boxShadow: "0 8px 24px var(--shadow-color)",
                                             }}
                                         />
-                                        <Bar dataKey={user1Data.user.login} name={user1Data.user.login} fill="var(--accent)" radius={[4, 4, 0, 0]} />
-                                        <Bar dataKey={user2Data.user.login} name={user2Data.user.login} fill="var(--purple)" radius={[4, 4, 0, 0]} />
+                                        <Bar dataKey={user1Data.user.login} name={user1Data.user.login} fill="var(--text-primary)" radius={[4, 4, 0, 0]} />
+                                        <Bar dataKey={user2Data.user.login} name={user2Data.user.login} fill="var(--pink)" radius={[4, 4, 0, 0]} />
                                         <Legend wrapperStyle={{ paddingTop: "20px" }} />
                                     </BarChart>
                                 </ResponsiveContainer>

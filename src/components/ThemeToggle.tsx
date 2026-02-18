@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Sun, Moon, Monitor } from "lucide-react";
+import { Sun, Moon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export const ThemeToggle: React.FC = () => {
@@ -11,11 +11,48 @@ export const ThemeToggle: React.FC = () => {
         document.documentElement.setAttribute("data-theme", saved);
     }, []);
 
-    const toggleTheme = () => {
+    const toggleTheme = (event: React.MouseEvent) => {
         const next = theme === "dark" ? "light" : "dark";
-        setTheme(next);
-        document.documentElement.setAttribute("data-theme", next);
-        localStorage.setItem("theme", next);
+
+        // Check for reduced motion preference
+        const isReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        // Radial reveal logic using View Transitions API
+        if (!document.startViewTransition || isReducedMotion) {
+            setTheme(next);
+            document.documentElement.setAttribute("data-theme", next);
+            localStorage.setItem("theme", next);
+            return;
+        }
+
+        const x = event.clientX;
+        const y = event.clientY;
+        const endRadius = Math.hypot(
+            Math.max(x, window.innerWidth - x),
+            Math.max(y, window.innerHeight - y)
+        );
+
+        const transition = document.startViewTransition(() => {
+            setTheme(next);
+            document.documentElement.setAttribute("data-theme", next);
+            localStorage.setItem("theme", next);
+        });
+
+        transition.ready.then(() => {
+            document.documentElement.animate(
+                {
+                    clipPath: [
+                        `circle(0px at ${x}px ${y}px)`,
+                        `circle(${endRadius}px at ${x}px ${y}px)`,
+                    ],
+                },
+                {
+                    duration: 2000,
+                    easing: "cubic-bezier(0.65, 0, 0.35, 1)",
+                    pseudoElement: "::view-transition-new(root)",
+                }
+            );
+        });
     };
 
     return (
@@ -23,7 +60,7 @@ export const ThemeToggle: React.FC = () => {
             onClick={toggleTheme}
             whileTap={{ scale: 0.9 }}
             whileHover={{ scale: 1.05 }}
-            className="relative w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden"
+            className="group relative w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden"
             style={{
                 background: "var(--bg-card)",
                 border: "1px solid var(--border-primary)",
