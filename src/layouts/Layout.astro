@@ -1,0 +1,416 @@
+---
+interface Props {
+    title?: string;
+    description?: string;
+}
+
+const {
+    title = "GitHub Analytics Dashboard — Visualize Your GitHub Profile",
+    description = "Analyze any GitHub profile with beautiful visualizations. View stats, language distribution, top repositories, contribution heatmap, and compare users side-by-side.",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content={description} />
+        <meta name="generator" content={Astro.generator} />
+
+        <!-- Open Graph -->
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="/og-image.png" />
+
+        <!-- Twitter Card -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+            rel="stylesheet"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <title>{title}</title>
+
+        <script
+            src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"
+        ></script>
+        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"
+        ></script>
+
+        <style type="text/tailwindcss">
+            @theme {
+                --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+                --font-mono: "JetBrains Mono", monospace;
+            }
+
+            /* ========== DARK MODE (default) ========== */
+            :root,
+            [data-theme="dark"] {
+                --bg-primary: #0a0a0f;
+                --bg-secondary: #12121a;
+                --bg-card: #16161f;
+                --bg-card-hover: #1c1c28;
+                --bg-elevated: #1e1e2a;
+                --border-primary: #2a2a3a;
+                --border-subtle: #1e1e2e;
+                --text-primary: #f0f0f5;
+                --text-secondary: #8888a0;
+                --text-muted: #555570;
+                --accent: #6366f1;
+                --accent-hover: #818cf8;
+                --accent-soft: rgba(99, 102, 241, 0.12);
+                --accent-glow: rgba(99, 102, 241, 0.25);
+                --success: #22c55e;
+                --warning: #f59e0b;
+                --danger: #ef4444;
+                --purple: #a855f7;
+                --pink: #ec4899;
+                --cyan: #06b6d4;
+                --glass-bg: rgba(22, 22, 31, 0.75);
+                --glass-border: rgba(255, 255, 255, 0.06);
+                --shadow-color: rgba(0, 0, 0, 0.5);
+                --heatmap-0: #1e1e2e;
+                --heatmap-1: #216e39; /* Brighter green */
+                --heatmap-2: #30a14e;
+                --heatmap-3: #40c463;
+                --heatmap-4: #9be9a8; /* Very bright green for max */
+            }
+
+            /* ========== LIGHT MODE ========== */
+            [data-theme="light"] {
+                --bg-primary: #fafbfc;
+                --bg-secondary: #f0f2f5;
+                --bg-card: #ffffff;
+                --bg-card-hover: #f8f9fb;
+                --bg-elevated: #ffffff;
+                --border-primary: #e2e4e9;
+                --border-subtle: #eef0f3;
+                --text-primary: #111827;
+                --text-secondary: #6b7280;
+                --text-muted: #9ca3af;
+                --accent: #4f46e5;
+                --accent-hover: #6366f1;
+                --accent-soft: rgba(79, 70, 229, 0.08);
+                --accent-glow: rgba(79, 70, 229, 0.15);
+                --success: #16a34a;
+                --warning: #d97706;
+                --danger: #dc2626;
+                --purple: #9333ea;
+                --pink: #db2777;
+                --cyan: #0891b2;
+                --glass-bg: rgba(255, 255, 255, 0.8);
+                --glass-border: rgba(0, 0, 0, 0.06);
+                --shadow-color: rgba(0, 0, 0, 0.08);
+                --heatmap-0: #eef0f3;
+                --heatmap-1: #9be9a8;
+                --heatmap-2: #40c463;
+                --heatmap-3: #30a14e;
+                --heatmap-4: #216e39;
+            }
+
+            /* ========== BASE RESET ========== */
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            html {
+                scroll-behavior: smooth;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+            }
+
+            body {
+                font-family: "Inter", system-ui, sans-serif;
+                background-color: var(--bg-primary);
+                color: var(--text-primary);
+                min-height: 100vh;
+                transition:
+                    background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                    color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            /* ========== SCROLLBAR ========== */
+            ::-webkit-scrollbar {
+                width: 6px;
+            }
+            ::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            ::-webkit-scrollbar-thumb {
+                background: var(--border-primary);
+                border-radius: 10px;
+            }
+            ::-webkit-scrollbar-thumb:hover {
+                background: var(--text-muted);
+            }
+
+            /* ========== GLASS CARD ========== */
+            .glass {
+                background: var(--glass-bg);
+                backdrop-filter: blur(20px) saturate(180%);
+                -webkit-backdrop-filter: blur(20px) saturate(180%);
+                border: 1px solid var(--glass-border);
+                box-shadow: 0 4px 24px var(--shadow-color);
+            }
+
+            /* ========== CARD SYSTEM ========== */
+            .card {
+                background: var(--bg-card);
+                border: 1px solid var(--border-primary);
+                border-radius: 16px;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .card:hover {
+                background: var(--bg-card-hover);
+                border-color: var(--accent);
+                box-shadow:
+                    0 8px 32px var(--shadow-color),
+                    0 0 0 1px var(--accent-soft);
+                transform: translateY(-2px);
+            }
+
+            /* ========== GRADIENT TEXT ========== */
+            .gradient-text {
+                background: linear-gradient(
+                    135deg,
+                    var(--accent),
+                    var(--purple),
+                    var(--pink)
+                );
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+            /* ========== GLOW ========== */
+            .glow-hover {
+                transition: box-shadow 0.3s ease;
+            }
+            .glow-hover:hover {
+                box-shadow:
+                    0 0 40px var(--accent-glow),
+                    0 8px 32px var(--shadow-color);
+            }
+
+            /* ========== SKELETON ========== */
+            @keyframes shimmer {
+                0% {
+                    transform: translateX(-100%);
+                }
+                100% {
+                    transform: translateX(100%);
+                }
+            }
+            .skeleton {
+                background: var(--bg-elevated);
+                border-radius: 8px;
+                position: relative;
+                overflow: hidden;
+            }
+            .skeleton::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(
+                    90deg,
+                    transparent,
+                    var(--accent-soft),
+                    transparent
+                );
+                animation: shimmer 1.5s ease-in-out infinite;
+            }
+
+            /* ========== FLOAT ========== */
+            @keyframes float {
+                0%,
+                100% {
+                    transform: translateY(0px);
+                }
+                50% {
+                    transform: translateY(-12px);
+                }
+            }
+            .animate-float {
+                animation: float 4s ease-in-out infinite;
+            }
+
+            /* ========== GRADIENT MESH BG ========== */
+            .mesh-bg {
+                position: fixed;
+                inset: 0;
+                z-index: -1;
+                overflow: hidden;
+            }
+            .mesh-bg::before {
+                content: "";
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background:
+                    radial-gradient(
+                        circle at 20% 50%,
+                        var(--accent-soft) 0%,
+                        transparent 40%
+                    ),
+                    radial-gradient(
+                        circle at 80% 20%,
+                        rgba(168, 85, 247, 0.08) 0%,
+                        transparent 40%
+                    ),
+                    radial-gradient(
+                        circle at 50% 80%,
+                        rgba(236, 72, 153, 0.06) 0%,
+                        transparent 40%
+                    );
+                animation: mesh-rotate 30s linear infinite;
+            }
+            @keyframes mesh-rotate {
+                0% {
+                    transform: rotate(0deg);
+                }
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+
+            /* These are moved to the standard style block below for reliability */
+
+            /* ========== BUTTON ========== */
+            .btn-primary {
+                background: linear-gradient(
+                    135deg,
+                    var(--accent),
+                    var(--purple)
+                );
+                color: white;
+                font-weight: 600;
+                border-radius: 12px;
+                padding: 10px 24px;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 16px var(--accent-glow);
+            }
+            .btn-primary:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 8px 24px var(--accent-glow);
+                filter: brightness(1.1);
+            }
+            .btn-primary:active {
+                transform: translateY(0);
+            }
+
+            /* ========== STAT CARD VARIANTS ========== */
+            .stat-card {
+                background: var(--bg-card);
+                border: 1px solid var(--border-primary);
+                border-radius: 16px;
+                padding: 20px;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                position: relative;
+                overflow: hidden;
+            }
+            .stat-card::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: var(--stat-gradient);
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+            .stat-card:hover {
+                border-color: transparent;
+                transform: translateY(-3px);
+                box-shadow: 0 12px 40px var(--shadow-color);
+            }
+            .stat-card:hover::before {
+                opacity: 1;
+            }
+
+            /* ========== SUBTLE DOT GRID ========== */
+            .dot-grid {
+                background-image: radial-gradient(
+                    circle,
+                    var(--border-subtle) 1px,
+                    transparent 1px
+                );
+                background-size: 32px 32px;
+            }
+
+            /* ========== PILL TAB ========== */
+            .tab-pill {
+                position: relative;
+                padding: 8px 20px;
+                border-radius: 10px;
+                font-weight: 500;
+                font-size: 14px;
+                transition: all 0.2s ease;
+                color: var(--text-secondary);
+            }
+            .tab-pill:hover {
+                color: var(--text-primary);
+                background: var(--accent-soft);
+            }
+            .tab-pill.active {
+                color: white;
+                background: linear-gradient(
+                    135deg,
+                    var(--accent),
+                    var(--purple)
+                );
+                box-shadow: 0 4px 16px var(--accent-glow);
+            }
+        </style>
+
+        <style>
+            /* ========== HEATMAP COLORS (Standard CSS) ========== */
+            .heatmap-0 {
+                background-color: var(--heatmap-0) !important;
+            }
+            .heatmap-1 {
+                background-color: var(--heatmap-1) !important;
+            }
+            .heatmap-2 {
+                background-color: var(--heatmap-2) !important;
+            }
+            .heatmap-3 {
+                background-color: var(--heatmap-3) !important;
+            }
+            .heatmap-4 {
+                background-color: var(--heatmap-4) !important;
+            }
+
+            /* Tooltip fix */
+            .heatmap-tooltip {
+                pointer-events: none;
+                transition: opacity 0.15s ease;
+            }
+        </style>
+
+        <script is:inline>
+            // Theme initialization (prevent flash)
+            const savedTheme = localStorage.getItem("theme") || "dark";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+        </script>
+    </head>
+    <body class="dot-grid min-h-screen relative">
+        <div class="mesh-bg"></div>
+        <slot />
+    </body>
+</html>
