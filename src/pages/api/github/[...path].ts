@@ -4,7 +4,7 @@ export const ALL: APIRoute = async ({ params, request }) => {
     const { path } = params;
 
     if (!path) {
-        return new Response(JSON.stringify({ message: 'Missing path' }), {
+        return new Response(JSON.stringify({ error: 'Missing path' }), {
             status: 400,
             headers: { 'Content-Type': 'application/json' }
         });
@@ -14,48 +14,59 @@ export const ALL: APIRoute = async ({ params, request }) => {
     const searchParams = url.searchParams.toString();
     const githubUrl = `https://api.github.com/${path}${searchParams ? '?' + searchParams : ''}`;
 
+    // Robust token detection for Vercel Serverless environment
+    let token = import.meta.env.GITHUB_TOKEN;
+    if (!token && typeof process !== 'undefined') {
+        token = process.env.GITHUB_TOKEN;
+    }
+
     const headers = new Headers();
     headers.set('Accept', 'application/vnd.github.v3+json');
     headers.set('User-Agent', 'Github-Analytics-Generator');
 
-    // Use import.meta.env for tokens in Astro
-    const token = import.meta.env.GITHUB_TOKEN;
     if (token) {
-        headers.set('Authorization', `Bearer ${token}`);
+        const cleanToken = token.startsWith('ghp_') || token.startsWith('github_pat_') ? token : token.trim();
+        headers.set('Authorization', `token ${cleanToken}`);
     }
 
     try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+
         const response = await fetch(githubUrl, {
             method: request.method,
             headers: headers,
+            signal: controller.signal
+        }).finally(() => clearTimeout(timeoutId));
+
+        // Get body as ArrayBuffer to handle any content type safely without encoding issues
+        const responseData = await response.arrayBuffer();
+
+        const forwardHeaders = new Headers();
+        const contentType = response.headers.get('content-type');
+        if (contentType) forwardHeaders.set('Content-Type', contentType);
+
+        // Forward important rate limit and link headers
+        ['X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset', 'Link'].forEach(h => {
+            const val = response.headers.get(h);
+            if (val) forwardHeaders.set(h, val);
         });
 
-        const contentType = response.headers.get('content-type');
-        let body;
-
-        if (contentType && contentType.includes('application/json')) {
-            body = JSON.stringify(await response.json());
-        } else {
-            body = await response.text();
-        }
-
-        return new Response(body, {
+        return new Response(responseData, {
             status: response.status,
-            headers: {
-                'Content-Type': contentType || 'application/json',
-                'X-RateLimit-Limit': response.headers.get('X-RateLimit-Limit') || '',
-                'X-RateLimit-Remaining': response.headers.get('X-RateLimit-Remaining') || '',
-                'X-RateLimit-Reset': response.headers.get('X-RateLimit-Reset') || '',
-                'Link': response.headers.get('Link') || '',
-            }
+            headers: forwardHeaders
         });
     } catch (error: any) {
-        console.error('Proxy error:', error);
+        console.error('Proxy Error:', error);
+
+        const status = error.name === 'AbortError' ? 504 : 500;
+        const message = error.name === 'AbortError' ? 'Gateway Timeout' : 'Internal Server Error';
+
         return new Response(JSON.stringify({
-            message: 'Internal Server Error',
+            message,
             error: error?.message || 'Unknown error'
         }), {
-            status: 500,
+            status,
             headers: { 'Content-Type': 'application/json' }
         });
     }
