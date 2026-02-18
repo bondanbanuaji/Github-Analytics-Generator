@@ -1,6 +1,9 @@
 {
-  "name": "",
+  "name": "github-analytics-generator",
   "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
