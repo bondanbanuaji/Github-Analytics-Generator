@@ -24,9 +24,9 @@ export const Header: React.FC = () => {
                     <img src="/logo/GitHub.png" alt="GitHub Logo" className="w-6 h-6 object-contain" />
                 </motion.div>
                 <div>
-                    <h1 className="text-lg font-bold flex items-center gap-1.5" style={{ color: "var(--text-primary)" }}>
+                    <span className="text-lg font-bold flex items-center gap-1.5" style={{ color: "var(--text-primary)" }}>
                         GitHub Analytics
-                    </h1>
+                    </span>
                     <p className="text-[11px] font-medium" style={{ color: "var(--text-muted)" }}>
                         Powered by GitHub REST API
                     </p>

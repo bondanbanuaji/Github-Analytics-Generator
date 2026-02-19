@@ -233,17 +233,130 @@ export const GitHubDashboard: React.FC = () => {
                 )}
             </AnimatePresence>
 
+            {/* FAQ Section — critical for AI search & rich results */}
+            <section className="mt-20 max-w-3xl mx-auto" aria-labelledby="faq-heading">
+                <h2
+                    id="faq-heading"
+                    className="text-2xl sm:text-3xl font-bold text-center mb-10"
+                    style={{ color: "var(--text-primary)" }}
+                >
+                    Frequently Asked Questions
+                </h2>
+                <div className="space-y-4">
+                    {[
+                        {
+                            q: "What is GitHub Analytics Dashboard?",
+                            a: "GitHub Analytics Dashboard is a free, open-source web tool that lets you analyze any GitHub profile. It provides beautiful visualizations of stats, language distributions, contribution heatmaps, and top repositories — all powered by the GitHub REST API.",
+                        },
+                        {
+                            q: "How do I use GitHub Analytics Dashboard?",
+                            a: "Simply enter any GitHub username in the search bar and press Enter. The dashboard will instantly fetch and display the user's profile stats, language breakdown, top repositories, and contribution activity in a beautiful visual format.",
+                        },
+                        {
+                            q: "Can I compare two GitHub users side by side?",
+                            a: "Yes! Switch to the 'Compare' tab to enter two GitHub usernames and see a side-by-side comparison of their stats, languages, repositories, and contribution patterns.",
+                        },
+                        {
+                            q: "Is GitHub Analytics Dashboard free to use?",
+                            a: "Yes, GitHub Analytics Dashboard is completely free and open-source. It uses the public GitHub REST API, so no authentication or payment is required to analyze public GitHub profiles.",
+                        },
+                        {
+                            q: "What data does GitHub Analytics Dashboard show?",
+                            a: "The dashboard displays: total repositories, stars, and forks; programming language distribution with interactive charts; a contribution activity heatmap for the past year; top repositories ranked by stars; follower and following counts; and the ability to export results as a PDF.",
+                        },
+                    ].map((faq, i) => (
+                        <details
+                            key={i}
+                            className="card group"
+                            style={{
+                                padding: "16px 20px",
+                                cursor: "pointer",
+                            }}
+                        >
+                            <summary
+                                className="font-semibold text-sm sm:text-base list-none flex items-center justify-between"
+                                style={{ color: "var(--text-primary)" }}
+                            >
+                                {faq.q}
+                                <span
+                                    className="ml-2 text-lg transition-transform duration-200 group-open:rotate-45"
+                                    style={{ color: "var(--accent)" }}
+                                >
+                                    +
+                                </span>
+                            </summary>
+                            <p
+                                className="mt-3 text-sm leading-relaxed"
+                                style={{ color: "var(--text-secondary)" }}
+                            >
+                                {faq.a}
+                            </p>
+                        </details>
+                    ))}
+                </div>
+            </section>
+
+            {/* About Section — brand authority for AI citation */}
+            <section className="mt-16 max-w-2xl mx-auto text-center" aria-labelledby="about-heading">
+                <h2
+                    id="about-heading"
+                    className="text-xl font-bold mb-4"
+                    style={{ color: "var(--text-primary)" }}
+                >
+                    About This Tool
+                </h2>
+                <p
+                    className="text-sm leading-relaxed mb-2"
+                    style={{ color: "var(--text-secondary)" }}
+                >
+                    GitHub Analytics Dashboard is a modern, open-source developer tool created by{" "}
+                    <a
+                        href="https://github.com/bondanbanuaji"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-semibold"
+                        style={{ color: "var(--accent)" }}
+                    >
+                        boba.dev
+                    </a>
+                    . Built with Astro, React, and Recharts, it leverages the GitHub REST API to provide
+                    real-time analytics for any public GitHub profile — completely free, no login required.
+                </p>
+                <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+                    Last updated: February 2026
+                </p>
+            </section>
+
             {/* Footer */}
-            <footer className="text-center mt-20 pt-8 text-xs"
-                style={{ borderTop: "1px solid var(--border-subtle)", color: "var(--text-muted)" }}>
+            <footer
+                className="text-center mt-16 pt-8 pb-8 text-xs"
+                style={{
+                    borderTop: "1px solid var(--border-subtle)",
+                    color: "var(--text-muted)",
+                }}
+                role="contentinfo"
+            >
                 <p>
                     Built with{" "}
                     <span style={{ color: "var(--accent)" }}>Astro</span> +{" "}
                     <span style={{ color: "var(--purple)" }}>React</span> +{" "}
                     <span style={{ color: "var(--pink)" }}>Recharts</span>
                 </p>
-                <p className="mt-1 opacity-50">
+                <p className="mt-1 opacity-60">
                     Data from GitHub REST API • Not affiliated with GitHub
+                </p>
+                <p className="mt-2">
+                    <a
+                        href="https://github.com/bondanbanuaji/Github-Analytics-Generator"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium"
+                        style={{ color: "var(--accent)", opacity: 0.8 }}
+                    >
+                        ⭐ Star on GitHub
+                    </a>
+                    <span className="mx-2">•</span>
+                    <span>© {new Date().getFullYear()} GitHub Analytics Dashboard</span>
                 </p>
             </footer>
         </div>

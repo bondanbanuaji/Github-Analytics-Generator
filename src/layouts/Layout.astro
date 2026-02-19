@@ -7,9 +7,15 @@ interface Props {
 }
 
 const {
-    title = "GitHub Analytics Dashboard — Visualize Your GitHub Profile",
-    description = "Analyze any GitHub profile with beautiful visualizations. View stats, language distribution, top repositories, contribution heatmap, and compare users side-by-side.",
+    title = "GitHub Analytics - Visualize Any GitHub Profile | GitHub Analytics Dashboard",
+    description = "Analyze any GitHub profile with stunning visualizations. View stats, languages, top repos, contribution heatmap, and compare developers side-by-side.",
 } = Astro.props;
+
+const siteUrl =
+    Astro.site?.toString().replace(/\/$/, "") ||
+    "https://github-analytics-one.vercel.app";
+const canonicalUrl = Astro.url.href;
+const logoUrl = `${siteUrl}/logo/GitHub.png`;
 ---
 
 <!doctype html>
@@ -20,24 +26,38 @@ const {
         <meta name="description" content={description} />
         <meta
             name="keywords"
-            content="github stats, github analytics, visualization, developer tools, github profile profile, github comparison"
+            content="github analytics, github stats, github profile analyzer, developer tools, github visualization, github comparison, github insights"
         />
-        <link rel="canonical" href={Astro.url.href} />
+        <link rel="canonical" href={canonicalUrl} />
         <meta name="generator" content={Astro.generator} />
+        <meta
+            name="robots"
+            content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+        />
+        <meta name="author" content="boba.dev" />
 
         <!-- Open Graph -->
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content={Astro.url.href} />
-        <meta property="og:image" content="/logo/GitHub.png" />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:image" content={logoUrl} />
+        <meta
+            property="og:image:alt"
+            content="GitHub Analytics Dashboard Logo"
+        />
         <meta property="og:site_name" content="GitHub Analytics Dashboard" />
+        <meta property="og:locale" content="en_US" />
 
         <!-- Twitter Card -->
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
-        <meta name="twitter:image" content="/logo/GitHub.png" />
+        <meta name="twitter:image" content={logoUrl} />
+        <meta
+            name="twitter:image:alt"
+            content="GitHub Analytics Dashboard Logo"
+        />
 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -52,22 +72,127 @@ const {
         <link rel="icon" type="image/png" href="/logo/GitHub.png" />
         <title>{title}</title>
 
-        <!-- JSON-LD for rich results -->
+        <!-- JSON-LD: Organization Schema -->
         <script
             type="application/ld+json"
             is:inline
             set:html={JSON.stringify({
                 "@context": "https://schema.org",
-                "@type": "WebApplication",
+                "@type": "Organization",
+                name: "GitHub Analytics Dashboard",
+                url: siteUrl,
+                logo: logoUrl,
+                description:
+                    "Free developer tool to analyze and visualize any GitHub profile with stats, language charts, contribution heatmaps, and user comparison.",
+                foundingDate: "2024",
+                sameAs: [
+                    "https://github.com/bondanbanuaji/Github-Analytics-Generator",
+                ],
+            })}
+        />
+
+        <!-- JSON-LD: WebSite + SearchAction Schema -->
+        <script
+            type="application/ld+json"
+            is:inline
+            set:html={JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                name: "GitHub Analytics Dashboard",
+                url: siteUrl,
+                description: description,
+                potentialAction: {
+                    "@type": "SearchAction",
+                    target: `${siteUrl}/?user={search_term_string}`,
+                    "query-input": "required name=search_term_string",
+                },
+            })}
+        />
+
+        <!-- JSON-LD: SoftwareApplication Schema -->
+        <script
+            type="application/ld+json"
+            is:inline
+            set:html={JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "SoftwareApplication",
                 name: "GitHub Analytics Dashboard",
                 description: description,
-                url: Astro.url.href,
+                url: siteUrl,
                 applicationCategory: "DeveloperApplication",
-                operatingSystem: "All",
-                creator: {
-                    "@type": "Organization",
-                    name: "GitHub Analytics",
+                operatingSystem: "Web",
+                offers: {
+                    "@type": "Offer",
+                    price: "0",
+                    priceCurrency: "USD",
                 },
+                creator: {
+                    "@type": "Person",
+                    name: "boba.dev",
+                    url: "https://github.com/bondanbanuaji",
+                },
+                featureList: [
+                    "GitHub profile analytics",
+                    "Language distribution charts",
+                    "Contribution heatmap",
+                    "Top repositories ranking",
+                    "Side-by-side user comparison",
+                    "PDF export",
+                    "Dark and light mode",
+                ],
+                screenshot: logoUrl,
+            })}
+        />
+
+        <!-- JSON-LD: FAQPage Schema -->
+        <script
+            type="application/ld+json"
+            is:inline
+            set:html={JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                mainEntity: [
+                    {
+                        "@type": "Question",
+                        name: "What is GitHub Analytics Dashboard?",
+                        acceptedAnswer: {
+                            "@type": "Answer",
+                            text: "GitHub Analytics Dashboard is a free, open-source web tool that lets you analyze any GitHub profile. It provides beautiful visualizations of stats, language distributions, contribution heatmaps, and top repositories — all powered by the GitHub REST API.",
+                        },
+                    },
+                    {
+                        "@type": "Question",
+                        name: "How do I use GitHub Analytics Dashboard?",
+                        acceptedAnswer: {
+                            "@type": "Answer",
+                            text: "Simply enter any GitHub username in the search bar and press Enter. The dashboard will instantly fetch and display the user's profile stats, language breakdown, top repositories, and contribution activity in a beautiful visual format.",
+                        },
+                    },
+                    {
+                        "@type": "Question",
+                        name: "Can I compare two GitHub users side by side?",
+                        acceptedAnswer: {
+                            "@type": "Answer",
+                            text: "Yes! Switch to the 'Compare' tab to enter two GitHub usernames and see a side-by-side comparison of their stats, languages, repositories, and contribution patterns.",
+                        },
+                    },
+                    {
+                        "@type": "Question",
+                        name: "Is GitHub Analytics Dashboard free to use?",
+                        acceptedAnswer: {
+                            "@type": "Answer",
+                            text: "Yes, GitHub Analytics Dashboard is completely free and open-source. It uses the public GitHub REST API, so no authentication or payment is required to analyze public GitHub profiles.",
+                        },
+                    },
+                    {
+                        "@type": "Question",
+                        name: "What data does GitHub Analytics Dashboard show?",
+                        acceptedAnswer: {
+                            "@type": "Answer",
+                            text: "The dashboard displays: total repositories, stars, and forks; programming language distribution with interactive charts; a contribution activity heatmap for the past year; top repositories ranked by stars; follower and following counts; and the ability to export results as a PDF.",
+                        },
+                    },
+                ],
             })}
         />
 
@@ -412,6 +537,19 @@ const {
         </style>
 
         <style>
+            /* Screen-reader only (SEO H1) */
+            .sr-only {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                padding: 0;
+                margin: -1px;
+                overflow: hidden;
+                clip: rect(0, 0, 0, 0);
+                white-space: nowrap;
+                border-width: 0;
+            }
+
             /* ========== HEATMAP COLORS (Standard CSS) ========== */
             .heatmap-0 {
                 background-color: var(--heatmap-0) !important;
@@ -466,6 +604,9 @@ const {
         </script>
     </head>
     <body class="dot-grid min-h-screen relative">
+        <h1 class="sr-only">
+            GitHub Analytics Dashboard — Visualize Any GitHub Profile
+        </h1>
         <div class="mesh-bg"></div>
         <div class="full-bg-animation">
             <Antigravity
@@ -487,6 +628,8 @@ const {
                 fieldStrength={10}
             />
         </div>
-        <slot />
+        <main>
+            <slot />
+        </main>
     </body>
 </html>

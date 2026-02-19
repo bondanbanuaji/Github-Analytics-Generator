@@ -1,4 +1,30 @@
+# GitHub Analytics Dashboard — robots.txt
+# Last updated: 2026-02-19
+
 User-agent: *
+Allow: /
+Disallow: /api/
+
+# AI Search Engine Bots — explicitly allowed
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Bingbot
 Allow: /
 
 Sitemap: https://github-analytics-one.vercel.app/sitemap-index.xml
