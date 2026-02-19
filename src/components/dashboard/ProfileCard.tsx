@@ -8,8 +8,8 @@ import {
     Users,
     ExternalLink,
 } from "lucide-react";
-import type { GitHubUser } from "../lib/github";
-import { formatDate, formatNumber } from "../lib/utils";
+import type { GitHubUser } from "../../lib/github";
+import { formatDate, formatNumber } from "../../lib/utils";
 
 interface ProfileCardProps {
     user: GitHubUser;

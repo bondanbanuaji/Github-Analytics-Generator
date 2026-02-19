@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Star, GitFork, Eye, BookOpen, Users, FileCode, TrendingUp } from "lucide-react";
-import { formatNumber } from "../lib/utils";
+import { formatNumber } from "../../lib/utils";
 
 interface StatsCardsProps {
     totalRepos: number;

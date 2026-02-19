@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { AlertCircle, Clock, WifiOff, RefreshCw, UserX } from "lucide-react";
-import type { GitHubError } from "../lib/github";
+import type { GitHubError } from "../../lib/github";
 
 interface ErrorDisplayProps {
     error: GitHubError;

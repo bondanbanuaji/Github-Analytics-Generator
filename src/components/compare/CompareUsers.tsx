@@ -18,8 +18,8 @@ import {
     type GitHubUser,
     type GitHubRepo,
     type LanguageStat,
-} from "../lib/github";
-import { formatNumber } from "../lib/utils";
+} from "../../lib/github";
+import { formatNumber } from "../../lib/utils";
 
 interface CompareData {
     user: GitHubUser;

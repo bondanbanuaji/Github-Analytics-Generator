@@ -1,8 +1,8 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Star, GitFork, ExternalLink } from "lucide-react";
-import type { GitHubRepo } from "../lib/github";
-import { formatNumber, formatDate, getLanguageColor } from "../lib/utils";
+import type { GitHubRepo } from "../../lib/github";
+import { formatNumber, formatDate, getLanguageColor } from "../../lib/utils";
 
 interface RepoCardProps {
     repo: GitHubRepo;

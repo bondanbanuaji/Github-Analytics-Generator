@@ -1,24 +1,25 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { LayoutDashboard, GitCompareArrows, Github, Sparkles, Zap } from "lucide-react";
-import { Header } from "./Header";
-import { SearchBar } from "./SearchBar";
+import { Header } from "../layout/Header";
+import { SearchBar } from "../search/SearchBar";
 import { ProfileCard } from "./ProfileCard";
 import { StatsCards } from "./StatsCards";
 import { LanguageChart } from "./LanguageChart";
 import { TopRepos } from "./RepoCard";
 import { ActivityHeatmap } from "./ActivityHeatmap";
-import { CompareUsers } from "./CompareUsers";
-import { ExportPDF } from "./ExportPDF";
-import { ErrorDisplay } from "./ErrorDisplay";
+import { CompareUsers } from "../compare/CompareUsers";
+import { ExportPDF } from "../export/ExportPDF";
+import { ErrorDisplay } from "../ui/ErrorDisplay";
 import {
     ProfileSkeleton,
     StatsSkeleton,
     ChartSkeleton,
     ReposSkeleton,
     HeatmapSkeleton,
-} from "./SkeletonLoader";
-import { useGitHubData } from "../hooks/useGitHubData";
+} from "../ui/SkeletonLoader";
+import { useGitHubData } from "../../hooks/useGitHubData";
+import { Footer } from "../layout/Footer";
 
 type TabType = "dashboard" | "compare";
 
@@ -328,37 +329,7 @@ export const GitHubDashboard: React.FC = () => {
             </section>
 
             {/* Footer */}
-            <footer
-                className="text-center mt-16 pt-8 pb-8 text-xs"
-                style={{
-                    borderTop: "1px solid var(--border-subtle)",
-                    color: "var(--text-muted)",
-                }}
-                role="contentinfo"
-            >
-                <p>
-                    Built with{" "}
-                    <span style={{ color: "var(--accent)" }}>Astro</span> +{" "}
-                    <span style={{ color: "var(--purple)" }}>React</span> +{" "}
-                    <span style={{ color: "var(--pink)" }}>Recharts</span>
-                </p>
-                <p className="mt-1 opacity-60">
-                    Data from GitHub REST API • Not affiliated with GitHub
-                </p>
-                <p className="mt-2">
-                    <a
-                        href="https://github.com/bondanbanuaji/Github-Analytics-Generator"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="font-medium"
-                        style={{ color: "var(--accent)", opacity: 0.8 }}
-                    >
-                        ⭐ Star on GitHub
-                    </a>
-                    <span className="mx-2">•</span>
-                    <span>© {new Date().getFullYear()} GitHub Analytics Dashboard</span>
-                </p>
-            </footer>
+            <Footer />
         </div>
     );
 };

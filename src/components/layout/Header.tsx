@@ -1,6 +1,6 @@
 import React from "react";
 import { Github, BarChart3, Sparkles } from "lucide-react";
-import { ThemeToggle } from "./ThemeToggle";
+import { ThemeToggle } from "../ui/ThemeToggle";
 import { motion } from "framer-motion";
 
 export const Header: React.FC = () => {

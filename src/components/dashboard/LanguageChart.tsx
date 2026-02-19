@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { PieChart, Pie, Cell, ResponsiveContainer, Sector } from "recharts";
-import type { LanguageStat } from "../lib/github";
+import type { LanguageStat } from "../../lib/github";
 
 interface LanguageChartProps {
     data: LanguageStat[];
